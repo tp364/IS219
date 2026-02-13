@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CLI AI TOOLKIT</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            width: 100%;
+        }
+
+        body {
+            font-family: 'Courier New', 'Courier', monospace;
+            color: #fff;
+            background-color: #000;
+            line-height: 1.3;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            overflow-x: hidden;
+        }
+
+        /* RAW BRUTALIST GRID */
+        .container {
+            max-width: 100%;
+            margin: 0;
+            padding: 0;
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 0;
+            background-color: #000;
+        }
+
+        /* HEADER - AGGRESSIVE */
+        header {
+            border: 4px solid #fff;
+            border-bottom: 6px solid #fff;
+            padding: 25px;
+            margin: 0;
+            grid-column: span 12;
+            background-color: #000;
+            box-shadow: inset 0 0 0 2px #fff;
+        }
+
+        .logo {
+            font-size: 44px;
+            font-weight: 900;
+            letter-spacing: 8px;
+            grid-column: span 12;
+            color: #fff;
+            text-transform: uppercase;
+            word-break: break-word;
+            line-height: 1;
+            text-shadow: 3px 3px 0 #fff;
+            filter: drop-shadow(-3px -3px 0 #fff);
+            margin: 0;
+        }
+
+        /* HERO - BOLD STATEMENT */
+        .hero {
+            grid-column: span 12;
+            padding: 50px;
+            margin: 0;
+            border: 6px solid #fff;
+            background-color: #fff;
+            color: #000;
+            box-shadow: 
+                inset 0 0 0 3px #000,
+                inset 0 0 0 6px #fff;
+        }
+
+        .hero-title {
+            font-size: 64px;
+            font-weight: 900;
+            line-height: 1;
+            margin-bottom: 25px;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: #000;
+            word-break: break-word;
+            text-decoration: underline;
+            text-decoration-thickness: 6px;
+            text-decoration-color: #000;
+            text-underline-offset: 10px;
+        }
+
+        .hero-subtitle {
+            font-size: 13px;
+            font-weight: 700;
+            line-height: 1.4;
+            color: #000;
+            margin-bottom: 0;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 2px;
+        }
+
+        /* FEATURES - RAW BLOCKS */
+        .features {
+            grid-column: span 12;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0;
+            padding: 0;
+            margin: 0;
+        }
+
+        .feature {
+            display: flex;
+            flex-direction: column;
+            border: 4px solid #fff;
+            border-right: 4px solid #fff;
+            border-bottom: 4px solid #fff;
+            padding: 40px;
+            background-color: #000;
+            color: #fff;
+            position: relative;
+            margin: 0;
+        }
+
+        .feature:nth-child(3n) {
+            border-right: 4px solid #fff;
+        }
+
+        .feature:nth-last-child(-n+3) {
+            border-bottom: 4px solid #fff;
+        }
+
+        .feature::before {
+            content: '█ █ █';
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 16px;
+            letter-spacing: 2px;
+            opacity: 0.5;
+        }
+
+        .feature-number {
+            font-size: 72px;
+            font-weight: 900;
+            color: #fff;
+            margin-bottom: 15px;
+            line-height: 0.8;
+            letter-spacing: 4px;
+        }
+
+        .feature-title {
+            font-size: 18px;
+            font-weight: 900;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            line-height: 1.2;
+            border-bottom: 3px solid #fff;
+            padding-bottom: 10px;
+        }
+
+        .feature-description {
+            font-size: 12px;
+            font-weight: 700;
+            line-height: 1.6;
+            color: #ccc;
+            letter-spacing: 1px;
+        }
+
+        /* SPECS - TECHNICAL BRUTALISM */
+        .specs {
+            grid-column: span 12;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0;
+            padding: 0;
+            margin: 0;
+        }
+
+        .specs-column {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            border: 4px solid #fff;
+            padding: 40px;
+            background-color: #111;
+            color: #fff;
+        }
+
+        .specs-column:nth-child(2) {
+            border-left: 4px solid #000;
+        }
+
+        .spec-item {
+            display: grid;
+            grid-template-columns: 160px 1fr;
+            gap: 20px;
+            border-bottom: 3px solid #555;
+            padding-bottom: 18px;
+            margin-bottom: 18px;
+        }
+
+        .spec-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .spec-label {
+            font-weight: 900;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            padding-top: 2px;
+            color: #fff;
+            text-decoration: underline;
+            text-decoration-thickness: 2px;
+        }
+
+        .spec-value {
+            font-size: 12px;
+            font-weight: 700;
+            line-height: 1.5;
+            color: #aaa;
+            letter-spacing: 1px;
+        }
+
+        /* COMMANDS - MILITANT CARDS */
+        .commands {
+            grid-column: span 12;
+            padding: 50px;
+            margin: 0;
+            border: 6px solid #fff;
+            background-color: #fff;
+            color: #000;
+        }
+
+        .section-title {
+            font-size: 52px;
+            font-weight: 900;
+            margin-bottom: 50px;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            color: #000;
+            border: 4px solid #000;
+            padding: 20px;
+            text-align: center;
+            background-color: #000;
+            color: #fff;
+        }
+
+        .commands-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .command-card {
+            border: 4px solid #000;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            background-color: #f0f0f0;
+            box-shadow: 8px 8px 0 #000;
+            position: relative;
+        }
+
+        .command-card:hover {
+            box-shadow: 12px 12px 0 #000;
+            transform: translate(-4px, -4px);
+        }
+
+        .command-name {
+            font-size: 16px;
+            font-weight: 900;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #000;
+            border-bottom: 3px solid #000;
+            padding-bottom: 10px;
+        }
+
+        .command-desc {
+            font-size: 12px;
+            font-weight: 700;
+            line-height: 1.5;
+            color: #000;
+            margin-bottom: 20px;
+            flex-grow: 1;
+            letter-spacing: 1px;
+        }
+
+        .command-example {
+            font-size: 10px;
+            font-family: 'Courier New', monospace;
+            background-color: #000;
+            padding: 15px;
+            border: 3px solid #000;
+            color: #fff;
+            overflow-x: auto;
+            font-weight: 900;
+            letter-spacing: 1px;
+            line-height: 1.4;
+        }
+
+        /* SERVICES - INDUSTRIAL BOXES */
+        .services {
+            grid-column: span 12;
+            padding: 0;
+            margin: 0;
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0;
+        }
+
+        .service-box {
+            background-color: #000;
+            padding: 40px;
+            border: 5px solid #fff;
+            color: #fff;
+            border-right: 5px solid #fff;
+            border-bottom: 5px solid #fff;
+            position: relative;
+        }
+
+        .service-box::after {
+            content: '◆';
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            font-size: 20px;
+            opacity: 0.3;
+        }
+
+        .service-title {
+            font-size: 16px;
+            font-weight: 900;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border-bottom: 3px solid #fff;
+            padding-bottom: 12px;
+            color: #fff;
+        }
+
+        .service-content {
+            font-size: 12px;
+            font-weight: 700;
+            line-height: 1.8;
+            color: #bbb;
+            letter-spacing: 1px;
+        }
+
+        .service-bullet {
+            margin: 12px 0;
+            padding-left: 25px;
+            position: relative;
+        }
+
+        .service-bullet:before {
+            content: "▮";
+            position: absolute;
+            left: 0;
+            font-size: 14px;
+        }
+
+        /* ARCHITECTURE - STRUCTURE DISPLAY */
+        .architecture {
+            grid-column: span 12;
+            padding: 50px;
+            margin: 0;
+            border: 6px solid #fff;
+            background-color: #1a1a1a;
+            color: #fff;
+        }
+
+        .arch-description {
+            grid-column: span 12;
+            font-size: 12px;
+            font-weight: 700;
+            line-height: 1.8;
+            color: #ccc;
+            margin-bottom: 40px;
+            letter-spacing: 1px;
+        }
+
+        .arch-diagram {
+            grid-column: span 12;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0;
+        }
+
+        .arch-layer {
+            border: 4px solid #fff;
+            padding: 30px;
+            text-align: left;
+            font-size: 11px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            background-color: #000;
+            position: relative;
+            margin-bottom: -4px;
+            color: #fff;
+        }
+
+        .arch-layer:nth-child(odd) {
+            background-color: #222;
+        }
+
+        .arch-layer:last-child {
+            margin-bottom: 0;
+        }
+
+        .arch-layer::before {
+            content: '→ ';
+            margin-right: 10px;
+            opacity: 0.5;
+        }
+
+        /* FOOTER - MINIMAL BRUTAL */
+        footer {
+            grid-column: span 12;
+            padding: 40px;
+            margin: 0;
+            border: 6px solid #fff;
+            border-top: 8px solid #fff;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 30px;
+            background-color: #000;
+            color: #fff;
+        }
+
+        .footer-column {
+            flex: 1;
+        }
+
+        .footer-title {
+            font-size: 10px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 15px;
+            border-bottom: 3px solid #fff;
+            padding-bottom: 10px;
+            color: #fff;
+        }
+
+        .footer-link {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            color: #aaa;
+            text-decoration: none;
+            line-height: 2;
+            letter-spacing: 1px;
+        }
+
+        .footer-link:hover {
+            color: #fff;
+            text-decoration: underline;
+        }
+
+        .footer-info {
+            font-size: 10px;
+            font-weight: 700;
+            color: #777;
+            line-height: 1.8;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 1px;
+        }
+
+        /* RESPONSIVE BRUTALISM */
+        @media (max-width: 1024px) {
+            .commands-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .services-grid {
+                grid-template-columns: 1fr;
+            }
+
+            footer {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                font-size: 12px;
+            }
+
+            .logo {
+                font-size: 32px;
+                letter-spacing: 4px;
+            }
+
+            .hero-title {
+                font-size: 44px;
+            }
+
+            .section-title {
+                font-size: 36px;
+            }
+
+            .features {
+                grid-template-columns: 1fr;
+            }
+
+            .specs {
+                grid-template-columns: 1fr;
+            }
+
+            footer {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- HEADER -->
+        <header>
+            <div class="logo">CLI AI TOOLKIT</div>
+        </header>
+
+        <!-- HERO -->
+        <section class="hero">
+            <h1 class="hero-title">PROFESSIONAL AI INTEGRATION FRAMEWORK</h1>
+            <p class="hero-subtitle">INDUSTRY-STANDARD NODE.JS COMMAND-LINE TOOLKIT FOR SEAMLESS ARTIFICIAL INTELLIGENCE OPERATIONS. BUILT WITH SOLID PRINCIPLES AND EXTENSIBLE ARCHITECTURE FOR MAXIMUM CONTROL AND SCALABILITY.</p>
+        </section>
+
+        <!-- FEATURES -->
+        <section class="features">
+            <div class="feature">
+                <div class="feature-number">01</div>
+                <h3 class="feature-title">WEB SEARCH</h3>
+                <p class="feature-description">INTELLIGENT WEB SEARCH INTEGRATION POWERED BY OPENAI. DELIVERS CURATED RESULTS DIRECTLY TO COMMAND LINE WITH AUTOMATIC ORGANIZATION AND STRUCTURED DOCUMENTATION STORAGE.</p>
+            </div>
+
+            <div class="feature">
+                <div class="feature-number">02</div>
+                <h3 class="feature-title">IMAGE GENERATION</h3>
+                <p class="feature-description">STATE-OF-THE-ART DALL-E 3 IMAGE GENERATION WITH PROFESSIONAL-GRADE OUTPUT. GENERATE, CUSTOMIZE, AND AUTOMATICALLY SAVE WITH INTELLIGENT NAMING CONVENTIONS.</p>
+            </div>
+
+            <div class="feature">
+                <div class="feature-number">03</div>
+                <h3 class="feature-title">MEDIA ANALYSIS</h3>
+                <p class="feature-description">ADVANCED MULTIMODAL ANALYSIS USING GOOGLE GEMINI 3. ANALYZE IMAGES AND VIDEOS WITH DETAILED AI-POWERED INSIGHTS AND AUTOMATIC REPORT GENERATION.</p>
+            </div>
+        </section>
+
+        <!-- SPECS -->
+        <section class="specs">
+            <div class="specs-column">
+                <div class="spec-item">
+                    <label class="spec-label">RUNTIME</label>
+                    <div class="spec-value">NODE.JS 25.6.0 WITH TYPESCRIPT 5.3.3</div>
+                </div>
+
+                <div class="spec-item">
+                    <label class="spec-label">MODULE SYSTEM</label>
+                    <div class="spec-value">COMMONJS (WINDOWS OPTIMIZED)</div>
+                </div>
+
+                <div class="spec-item">
+                    <label class="spec-label">ARCHITECTURE</label>
+                    <div class="spec-value">SOLID PRINCIPLES WITH DEPENDENCY INJECTION</div>
+                </div>
+            </div>
+
+            <div class="specs-column">
+                <div class="spec-item">
+                    <label class="spec-label">API INTEGRATIONS</label>
+                    <div class="spec-value">OPENAI, GOOGLE GEMINI, MULTIPLE ENDPOINTS</div>
+                </div>
+
+                <div class="spec-item">
+                    <label class="spec-label">EXTENSIBILITY</label>
+                    <div class="spec-value">COMMAND REGISTRY PATTERN FOR EASY EXPANSION</div>
+                </div>
+
+                <div class="spec-item">
+                    <label class="spec-label">DATA ORGANIZATION</label>
+                    <div class="spec-value">AUTOMATIC TIMESTAMPED FILE MANAGEMENT</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- COMMANDS -->
+        <section class="commands">
+            <h2 class="section-title">CORE COMMANDS</h2>
+            <div class="commands-grid">
+                <div class="command-card">
+                    <div class="command-name">WEB SEARCH</div>
+                    <p class="command-desc">EXECUTE INTELLIGENT WEB SEARCHES WITH OPENAI INTEGRATION. RESULTS AUTOMATICALLY SAVED WITH TIMESTAMPS.</p>
+                    <code class="command-example">npm run dev<br/>web-search<br/>"query"</code>
+                </div>
+
+                <div class="command-card">
+                    <div class="command-name">IMAGE GENERATION</div>
+                    <p class="command-desc">GENERATE PROFESSIONAL IMAGES USING DALL-E 3. SUPPORTS MULTIPLE SIZES, QUALITY SETTINGS, AND BATCH GENERATION.</p>
+                    <code class="command-example">npm run dev<br/>generate-image<br/>"prompt"</code>
+                </div>
+
+                <div class="command-card">
+                    <div class="command-name">MEDIA ANALYSIS</div>
+                    <p class="command-desc">ANALYZE IMAGES AND VIDEOS USING GEMINI'S MULTIMODAL CAPABILITIES. DETAILED INSIGHTS WITH STRUCTURED REPORTING.</p>
+                    <code class="command-example">npm run dev<br/>analyze-media<br/>path/file</code>
+                </div>
+            </div>
+        </section>
+
+        <!-- SERVICES -->
+        <section class="services">
+            <div style="grid-column: span 12; padding: 50px; background: #fff; border: 6px solid #fff; color: #000;">
+                <h2 class="section-title">SERVICE LAYER</h2>
+            </div>
+            <div class="services-grid">
+                <div class="service-box">
+                    <div class="service-title">OPENAI SERVICE</div>
+                    <div class="service-content">
+                        <div class="service-bullet">WEB SEARCH CAPABILITIES</div>
+                        <div class="service-bullet">DALL-E 3 INTEGRATION</div>
+                        <div class="service-bullet">CHAT COMPLETION SUPPORT</div>
+                        <div class="service-bullet">TOKEN MANAGEMENT</div>
+                    </div>
+                </div>
+
+                <div class="service-box">
+                    <div class="service-title">GEMINI SERVICE</div>
+                    <div class="service-content">
+                        <div class="service-bullet">IMAGE ANALYSIS</div>
+                        <div class="service-bullet">VIDEO PROCESSING</div>
+                        <div class="service-bullet">MULTIMODAL UNDERSTANDING</div>
+                        <div class="service-bullet">BASE64 ENCODING SUPPORT</div>
+                    </div>
+                </div>
+
+                <div class="service-box">
+                    <div class="service-title">FILE SERVICE</div>
+                    <div class="service-content">
+                        <div class="service-bullet">AUTOMATIC FOLDER CREATION</div>
+                        <div class="service-bullet">TIMESTAMPED ORGANIZATION</div>
+                        <div class="service-bullet">MIME TYPE DETECTION</div>
+                        <div class="service-bullet">CONTENT MANAGEMENT</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ARCHITECTURE -->
+        <section class="architecture">
+            <div style="grid-column: span 12; font-size: 52px; font-weight: 900; margin-bottom: 30px; text-transform: uppercase; letter-spacing: 4px;">SYSTEM ARCHITECTURE</div>
+            <p class="arch-description">THE TOOLKIT EMPLOYS A LAYERED ARCHITECTURE FOLLOWING SOLID PRINCIPLES, ENABLING EXTENSIBILITY AND MAINTAINABILITY. EACH COMPONENT MAINTAINS CLEAR SEPARATION OF CONCERNS WHILE THE REGISTRY PATTERN ALLOWS SIMPLE COMMAND ADDITION WITHOUT MODIFYING EXISTING CODE.</p>
+            <div class="arch-diagram">
+                <div class="arch-layer">CLI ENTRY POINT / COMMAND LINE INTERFACE</div>
+                <div class="arch-layer">COMMAND REGISTRY AND ROUTING SYSTEM</div>
+                <div class="arch-layer">COMMAND IMPLEMENTATION LAYER</div>
+                <div class="arch-layer">SERVICE LAYER (OPENAI, GEMINI, FILE I/O)</div>
+                <div class="arch-layer">EXTERNAL API INTEGRATION AND PROCESSING</div>
+            </div>
+        </section>
+
+        <!-- FOOTER -->
+        <footer>
+            <div class="footer-column">
+                <div class="footer-title">QUICK START</div>
+                <a href="#" class="footer-link">INSTALLATION GUIDE</a>
+                <a href="#" class="footer-link">API CONFIGURATION</a>
+                <a href="#" class="footer-link">COMMAND REFERENCE</a>
+            </div>
+
+            <div class="footer-column">
+                <div class="footer-title">DOCUMENTATION</div>
+                <a href="#" class="footer-link">BEST PRACTICES</a>
+                <a href="#" class="footer-link">EXAMPLES & TUTORIALS</a>
+                <a href="#" class="footer-link">ARCHITECTURE GUIDE</a>
+            </div>
+
+            <div class="footer-column">
+                <div class="footer-title">PROJECT INFO</div>
+                <p class="footer-info">
+                    VERSION: 1.0.0<br>
+                    STATUS: PRODUCTION READY<br>
+                    UPDATED: FEB 5 2026
+                </p>
+            </div>
+
+            <div class="footer-column">
+                <div class="footer-title">INTEGRATIONS</div>
+                <p class="footer-info">
+                    OPENAI API<br>
+                    GOOGLE GEMINI 3<br>
+                    NODE.JS RUNTIME<br>
+                    TYPESCRIPT FRAMEWORK
+                </p>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>
