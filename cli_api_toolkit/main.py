@@ -7,7 +7,7 @@ from tools.design_reviewer import analyze_website
 def main():
     parser = argparse.ArgumentParser(description="Agentic Orchestration Toolkit")
     subparsers = parser.add_subparsers(dest="command")
-
+ 
     # Research
     research_parser = subparsers.add_parser("research")
     research_parser.add_argument("topic")
