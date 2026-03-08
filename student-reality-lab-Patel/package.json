@@ -2,6 +2,12 @@
   "name": "student-reality-lab-patel",
   "version": "0.1.0",
   "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tp364/IS219.git"
+  },
+  "homepage": "https://tp364.github.io/IS219/",
+
   "scripts": {
     "dev": "vite",
     "build": "vite build",
