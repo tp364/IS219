@@ -210,3 +210,9 @@ To take this project further I would:
 4. Improve performance by precomputing and caching data at build time (the
    pipeline already supports this via `processed.json`).
 5. Record a 3–5 minute STAR demo video and finalize deployment on Vercel/GH Pages.
+
+## Submission
+
+Repository link: https://github.com/tp364/IS219/tree/main/student-reality-lab-Patel
+Deployed link: https://tp364.github.io/IS219/
+60-second screen recording (backup for demo day): https://youtu.be/4gZ1ww8kYu0
