@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import * as d3 from 'd3';
 import { loadData } from '../lib/loadData';
 import { ProcessedRecord } from '../lib/schema';
@@ -13,7 +13,6 @@ export default function CityChart() {
   useEffect(() => {
     loadData()
       .then(d => {
-        console.log('loaded data', d);
         setData(d);
         setLoading(false);
       })
@@ -25,9 +24,7 @@ export default function CityChart() {
   }, []);
 
   useEffect(() => {
-    if (!data.length || !svgRef.current) return;
-
-    const filtered: ProcessedRecord[] = data.filter(d => d.year === year);
+    if (!filteredData.length || !svgRef.current) return;
     const width = 800;
     const height = 400;
     const margin = { top: 20, right: 20, bottom: 40, left: 120 };
@@ -37,11 +34,11 @@ export default function CityChart() {
     svg.selectAll('*').remove();
 
     const x = d3.scaleLinear()
-      .domain([0, d3.max(filtered, (d: ProcessedRecord) => d.price_to_income)! * 1.1])
+      .domain([0, d3.max(filteredData, (d: ProcessedRecord) => d.price_to_income)! * 1.1])
       .range([margin.left, width - margin.right]);
 
     const y = d3.scaleBand()
-      .domain(filtered.map((d: ProcessedRecord) => d.region))
+      .domain(filteredData.map((d: ProcessedRecord) => d.region))
       .range([margin.top, height - margin.bottom])
       .padding(0.1);
 
@@ -58,7 +55,7 @@ export default function CityChart() {
       .domain([8, 3]); // invert so low ratio is green
 
     svg.selectAll('rect')
-      .data(filtered)
+      .data(filteredData)
       .enter()
       .append('rect')
       .attr('x', margin.left)
@@ -84,7 +81,7 @@ export default function CityChart() {
 
     // add numeric labels inside bars or just outside if too narrow
     svg.selectAll('text.value')
-      .data(filtered)
+      .data(filteredData)
       .enter()
       .append('text')
       .attr('class', 'value')
@@ -113,8 +110,6 @@ export default function CityChart() {
     // legend
     const legendHeight = 10;
     const legendWidth = 200;
-    const legendData = [3, 5, 8];
-    const legendScale = d3.scaleLinear().domain([3,8]).range([0, legendWidth]);
     const defs = svg.append('defs');
     const gradient = defs.append('linearGradient').attr('id','grad');
     gradient.append('stop').attr('offset','0%').attr('stop-color', color(3));
@@ -128,10 +123,18 @@ export default function CityChart() {
     svg.append('text').attr('x', margin.left).attr('y', height - margin.bottom + 30).text('low').attr('font-size','10px');
     svg.append('text').attr('x', margin.left+legendWidth-20).attr('y', height - margin.bottom + 30).text('high').attr('font-size','10px');
 
-  }, [data, year]);
+  }, [filteredData]);
 
-  // ensure years is a number[] to satisfy TS
-  const years = (Array.from(new Set(data.map((d: ProcessedRecord) => +d.year))) as number[]).sort();
+  // Memoizing avoids recomputing unique years and filtered arrays on every render.
+  const years = useMemo<number[]>(
+    () => (Array.from(new Set(data.map((d: ProcessedRecord) => +d.year))) as number[]).sort(),
+    [data]
+  );
+
+  const filteredData = useMemo<ProcessedRecord[]>(
+    () => (year === null ? [] : data.filter((d: ProcessedRecord) => d.year === year)),
+    [data, year]
+  );
 
   // set initial year when data arrives
   useEffect(() => {
@@ -152,7 +155,7 @@ export default function CityChart() {
 
   return (
     <div className="chart-container" style={{position: 'relative'}}>
-      <div className="tooltip" id="tooltip"></div>
+      <div className="tooltip" id="tooltip" aria-hidden="true"></div>
       <h2>Price-to-Income Ratio by Region ({year})</h2>
       <p>
         The bar chart below shows how many years of the typical household income it
@@ -163,9 +166,10 @@ export default function CityChart() {
         other costs).
       </p>
       <div className="controls">
-        <label>
-          Year: 
+        <label htmlFor="year-range">
+          Year:
           <input
+            id="year-range"
             type="range"
             aria-label="Year selector"
             min={Math.min(...years)}
@@ -173,10 +177,16 @@ export default function CityChart() {
             value={year}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setYear(+e.target.value)}
           />
-          {year}
+          <output htmlFor="year-range"> {year}</output>
         </label>
       </div>
-      <svg ref={svgRef} width={800} height={400}></svg>
+      <svg
+        ref={svgRef}
+        width={800}
+        height={400}
+        role="img"
+        aria-label={`Bar chart of price-to-income ratio by region for ${year}`}
+      ></svg>
       <p>
         Bars colored green are affordable (&lt;5 years of median income); red bars indicate ratios &gt;5.
       </p>
