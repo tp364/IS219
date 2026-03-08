@@ -38,3 +38,49 @@ Licensing & reuse:
 
 ## Next: Fetch & Integrate Real Data
 Once Zillow, ACS, and Freddie Mac sources are obtained, run the scripted fetch plan, combine datasets on `region` + `year`, and regenerate `processed.json` via `src/lib/loadData.ts`.
+
+### Processed dataset
+A small node script `scripts/process_data.js` (and Python version in `scripts/`)
+can be used to convert `/data/raw.csv` into `/data/processed.json` with derived
+fields.  The web app prefers `processed.json` if available, which speeds up page
+loads and makes builds deterministic.
+
+---
+
+## Development steps taken
+1. **Initial scaffold**: created React/Vite project with TypeScript and added core
+   components (`CityChart`, `Calculator`) along with `schema.ts` and data loading
+   logic.
+2. **Data pipeline**: defined CSV schema, implemented `loadData` to fetch raw or
+   preprocessed files, added sample data in `/data/raw.csv` and generated
+   `processed.json`.
+3. **Phase 1 README**: wrote project description, planning notes, and status
+   section.
+4. **Express server**: added simple `server.js` and `start` npm script for
+   production hosting; configured `vite.config.ts` port.
+5. **Calculator view**: built affordability calculator with salary slider,
+   monthly income conversion, and category text (`definitely/maybe/unlikely`).
+6. **City chart**: started with basic bar chart, added year slider, color scales,
+   tooltip, legend, and affordability coloring rules.
+7. **Bug fixes**: resolved npm ENOENT/ERESOLVE issues, port conflicts, and
+   ensured data visibility with initial year state.
+8. **UX refinements**: adjusted label positions, added/removed numeric annotations,
+   implemented gradient and color logic, and eventually cleaned up clutter.
+9. **Styling upgrades**: added SVG background, page and chart container gradients,
+   and overall site color scheme for visual appeal.
+10. **Accessibility**: included ARIA labels, keyboard focus styles, and semantic
+    HTML for improved usability.
+11. **Documentation**: expanded README through Phase 5, added deployment notes,
+    and included this `notes.md` provenance file.
+
+These steps record the evolution of the project from scaffold to finished demo.
+Feel free to update as new changes are made.
+
+---
+
+## Phase summaries
+- **Phase 1:** initial scoping, sample data, and README notes (essential question and data plan).
+- **Phase 2:** data pipeline & contract; schema defined, sample CSV parsing, derived field logic.
+- **Phase 3:** prototype with single view (CityChart) including year slider, color coding, and annotation.
+- **Phase 4:** second view added (affordability calculator), UI refinements, styling, accessibility, and narrative polish.
+- **Phase 5:** final aesthetics and documentation, accessibility checks, deployment instructions, and demo preparation.
