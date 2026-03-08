@@ -7,9 +7,13 @@ import { RawRecord, ProcessedRecord } from './schema';
  * still allowing live recomputation during development.
  */
 export async function loadData(): Promise<ProcessedRecord[]> {
+  const dataBaseUrl = import.meta.env.BASE_URL;
+  const processedPath = `${dataBaseUrl}data/processed.json`;
+  const rawPath = `${dataBaseUrl}data/raw.csv`;
+
   try {
     // attempt to fetch precomputed JSON (production build may include this)
-    const resp = await fetch('/data/processed.json');
+    const resp = await fetch(processedPath);
     if (resp.ok) {
       return (await resp.json()) as ProcessedRecord[];
     }
@@ -17,7 +21,7 @@ export async function loadData(): Promise<ProcessedRecord[]> {
     // fall through to raw CSV path
   }
 
-  const data: RawRecord[] = await d3.csv('/data/raw.csv', d3.autoType) as RawRecord[];
+  const data: RawRecord[] = await d3.csv(rawPath, d3.autoType) as RawRecord[];
   return data.map((d: RawRecord) => {
     const price_to_income = d.median_home_price / d.median_income;
     const required_downpayment_usd = d.median_home_price * (d.downpayment_percent / 100);
