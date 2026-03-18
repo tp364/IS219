@@ -162,6 +162,14 @@ function extractLabeledMoney(text: string, label: RegExp): number | undefined {
   return Number.isFinite(value) ? value : undefined;
 }
 
+function extractHomePriceFromText(text: string): number | undefined {
+  return extractNaturalValue(text, [
+    /\busing\s+\$?([\d,.]+(?:\.\d+)?k?)\s+(?:home|house)\b/i,
+    /\bfor\s+a[n]?\s+\$?([\d,.]+(?:\.\d+)?k?)\s+(?:home|house)\b/i,
+    /\b\$?([\d,.]+(?:\.\d+)?k?)\s+(?:home|house)\b/i
+  ]) ?? extractLabeledValue(text, ['home price', 'house price', 'price', 'home', 'house']);
+}
+
 function extractThreshold(text: string): number | undefined {
   const match = text.match(/threshold\s*=?\s*([\d.]+)/i) || text.match(/<=\s*([\d.]+)/);
   if (!match) return undefined;
@@ -180,10 +188,8 @@ function extractHomePriceFromHistory(messages: ChatMessage[]): number | undefine
   for (let i = messages.length - 1; i >= 0; i -= 1) {
     const text = messages[i].text;
     if (!text) continue;
-    const labeled = extractLabeledMoney(text, /(home|house|price|home price|house price)/);
-    if (labeled !== undefined) return labeled;
-    const generic = extractMoney(text);
-    if (generic !== undefined) return generic;
+    const homePrice = extractHomePriceFromText(text);
+    if (homePrice !== undefined) return homePrice;
   }
   return undefined;
 }
@@ -211,11 +217,7 @@ function buildScenarioInput(text: string, messages: ChatMessage[]): PaymentInput
     /\binterest(?: rate)?\s*(?:is|=|:)?\s*\$?([\d,.]+(?:\.\d+)?k?)\s*%\b/i
   ]) ?? extractValueWithHistory(text, messages, ['mortgage rate', 'interest rate', 'rate', 'apr']);
   const termYears = extractValueWithHistory(text, messages, ['term', 'years']) ?? 30;
-  const currentHomePrice = extractNaturalValue(text, [
-    /\busing\s+\$?([\d,.]+(?:\.\d+)?k?)\s+(?:home|house)\b/i,
-    /\bfor\s+a[n]?\s+\$?([\d,.]+(?:\.\d+)?k?)\s+(?:home|house)\b/i,
-    /\b\$?([\d,.]+(?:\.\d+)?k?)\s+(?:home|house)\b/i
-  ]) ?? extractLabeledValue(text, ['home price', 'house price', 'price', 'home', 'house']);
+  const currentHomePrice = extractHomePriceFromText(text);
   const homePrice = currentHomePrice ?? extractHomePriceFromHistory(messages);
   const currentLoanAmount = extractLabeledValue(text, ['loan amount']);
   const historyLoanAmount = extractHistoryValue(messages, ['loan amount']);
@@ -475,21 +477,21 @@ export default function Chatbot() {
         termYears: extractNumber(text, /(term|years)\s*=?\s*([\d,]+(?:\.\d+)?)/i),
         loanAmount: labeledLoanAmount
       };
-      if (!paymentInput.homePrice) {
+      if (paymentInput.homePrice === undefined) {
         paymentInput.homePrice = extractMoney(text);
       }
-      if (!paymentInput.downpaymentPercent && labeledDownpayment && paymentInput.homePrice) {
+      if (paymentInput.downpaymentPercent === undefined && labeledDownpayment !== undefined && paymentInput.homePrice !== undefined) {
         paymentInput.downpaymentPercent = (labeledDownpayment / paymentInput.homePrice) * 100;
       }
       const missing: string[] = [];
-      if (!paymentInput.homePrice && !paymentInput.loanAmount) missing.push('price or loan amount');
-      if (!paymentInput.downpaymentPercent && !paymentInput.loanAmount) missing.push('down payment percent');
-      if (!paymentInput.mortgageRatePercent) missing.push('rate');
-      if (!paymentInput.termYears) paymentInput.termYears = 30;
+      if (paymentInput.homePrice === undefined && paymentInput.loanAmount === undefined) missing.push('price or loan amount');
+      if (paymentInput.downpaymentPercent === undefined && paymentInput.loanAmount === undefined) missing.push('down payment percent');
+      if (paymentInput.mortgageRatePercent === undefined) missing.push('rate');
+      if (paymentInput.termYears === undefined) paymentInput.termYears = 30;
       if (missing.length > 0) {
         return 'Please include price, down payment percent, and rate. Example: "monthly payment price 400000 down 20 rate 6.5 term 30".';
       }
-      if (!paymentInput.homePrice && paymentInput.loanAmount) {
+      if (paymentInput.homePrice === undefined && paymentInput.loanAmount !== undefined) {
         paymentInput.homePrice = paymentInput.loanAmount;
         paymentInput.downpaymentPercent = 0;
       }
@@ -612,18 +614,18 @@ export default function Chatbot() {
         termYears: extractNumber(text, /(term|years)\s*=?\s*([\d,]+(?:\.\d+)?)/i),
         loanAmount: labeledLoanAmount
       };
-      if (!paymentInput.homePrice) {
+      if (paymentInput.homePrice === undefined) {
         paymentInput.homePrice = extractMoney(text);
       }
-      if (!paymentInput.downpaymentPercent && labeledDownpayment && paymentInput.homePrice) {
+      if (paymentInput.downpaymentPercent === undefined && labeledDownpayment !== undefined && paymentInput.homePrice !== undefined) {
         paymentInput.downpaymentPercent = (labeledDownpayment / paymentInput.homePrice) * 100;
       }
-      if (!paymentInput.termYears) paymentInput.termYears = 30;
-      const hasRate = !!paymentInput.mortgageRatePercent;
-      const hasPriceOrLoan = !!paymentInput.homePrice || !!paymentInput.loanAmount;
-      const hasDownPercentOrLoan = !!paymentInput.downpaymentPercent || !!paymentInput.loanAmount;
+      if (paymentInput.termYears === undefined) paymentInput.termYears = 30;
+      const hasRate = paymentInput.mortgageRatePercent !== undefined;
+      const hasPriceOrLoan = paymentInput.homePrice !== undefined || paymentInput.loanAmount !== undefined;
+      const hasDownPercentOrLoan = paymentInput.downpaymentPercent !== undefined || paymentInput.loanAmount !== undefined;
       if (hasRate && hasPriceOrLoan && hasDownPercentOrLoan) {
-        if (!paymentInput.homePrice && paymentInput.loanAmount) {
+        if (paymentInput.homePrice === undefined && paymentInput.loanAmount !== undefined) {
           paymentInput.homePrice = paymentInput.loanAmount;
           paymentInput.downpaymentPercent = 0;
         }

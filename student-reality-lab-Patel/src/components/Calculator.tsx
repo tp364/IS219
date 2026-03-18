@@ -1,6 +1,15 @@
 import React, { useState } from 'react';
 import { calculateScenario } from '../lib/calculatorMath';
 
+function formatCurrency(value: number, maximumFractionDigits = 0) {
+  return value.toLocaleString('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: maximumFractionDigits === 0 ? 0 : 2,
+    maximumFractionDigits
+  });
+}
+
 export default function Calculator() {
   const [annualIncome, setAnnualIncome] = useState(60000);
   const [incomeMode, setIncomeMode] = useState<'annual' | 'monthly'>('annual');
@@ -91,14 +100,14 @@ export default function Calculator() {
           />
         </label>
       </div>
-      <p>Using a ${price.toLocaleString()} home (median example above),</p>
+      <p>Using a {formatCurrency(price)} home (median example above),</p>
       <ul>
-        <li>Annual income: ${annualIncome.toLocaleString()}</li>
-        <li>Monthly income: ${scenario.monthlyIncome?.toLocaleString(undefined, { maximumFractionDigits: 0 })}</li>
-        <li>Down payment: ${scenario.downPayment.toLocaleString()}</li>
-        <li>Loan amount: ${scenario.loanAmount.toLocaleString()}</li>
-        <li>Estimated monthly payment: ${scenario.payment.toFixed(2)}</li>
-        <li>Estimated yearly payment: ${(scenario.payment * 12).toFixed(2)}</li>
+        <li>Annual income: {formatCurrency(annualIncome)}</li>
+        <li>Monthly income: {formatCurrency(scenario.monthlyIncome ?? 0)}</li>
+        <li>Down payment: {formatCurrency(scenario.downPayment)}</li>
+        <li>Loan amount: {formatCurrency(scenario.loanAmount)}</li>
+        <li>Estimated monthly payment: {formatCurrency(scenario.payment, 2)}</li>
+        <li>Estimated yearly payment: {formatCurrency(scenario.payment * 12, 2)}</li>
         <li>
           Affordability:
           <strong style={{ color: scenario.affordability === 'definitely' ? 'green' : scenario.affordability === 'maybe' ? 'orange' : 'red' }}>

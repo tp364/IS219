@@ -60,11 +60,29 @@ function extractNaturalNumber(text, patterns) {
   return undefined;
 }
 
+function extractHomePriceFromMessage(text) {
+  return extractNaturalNumber(text, [
+    /\busing\s+\$?([\d,.]+(?:\.\d+)?k?)\s+(?:home|house)\b/i,
+    /\bfor\s+a[n]?\s+\$?([\d,.]+(?:\.\d+)?k?)\s+(?:home|house)\b/i,
+    /\b\$?([\d,.]+(?:\.\d+)?k?)\s+(?:home|house)\b/i
+  ]) ?? extractLabeledNumber(text, ["home price", "house price", "price", "home", "house"]);
+}
+
 function extractHistoryNumber(messages, labels) {
   for (let i = messages.length - 1; i >= 0; i -= 1) {
     const value = extractLabeledNumber(String(messages[i]?.content ?? ""), labels);
     if (value !== undefined) {
       return value;
+    }
+  }
+  return undefined;
+}
+
+function extractHomePriceFromHistory(messages) {
+  for (let i = messages.length - 1; i >= 0; i -= 1) {
+    const homePrice = extractHomePriceFromMessage(String(messages[i]?.content ?? ""));
+    if (homePrice !== undefined) {
+      return homePrice;
     }
   }
   return undefined;
@@ -115,8 +133,9 @@ function extractIncomeValues(message, messages) {
 }
 
 function mortgageMonthlyPayment({ homePrice, downpaymentPercent, mortgageRatePercent, termYears, loanAmount }) {
-  const downpayment = homePrice * (downpaymentPercent / 100);
-  const effectiveLoanAmount = loanAmount ?? (homePrice - downpayment);
+  const derivedDownpayment = homePrice * (downpaymentPercent / 100);
+  const effectiveLoanAmount = loanAmount ?? (homePrice - derivedDownpayment);
+  const downpayment = Math.max(0, homePrice - effectiveLoanAmount);
   const n = termYears * 12;
   const rate = mortgageRatePercent / 100 / 12;
   const monthlyPayment = rate === 0
@@ -179,13 +198,8 @@ function buildScenarioContext(message, messages, data) {
   const termYears = extractLabeledNumber(message, ["term", "years"])
     ?? extractHistoryNumber(messages, ["term", "years"])
     ?? 30;
-  const currentHomePrice = extractNaturalNumber(message, [
-    /\busing\s+\$?([\d,.]+(?:\.\d+)?k?)\s+(?:home|house)\b/i,
-    /\bfor\s+a[n]?\s+\$?([\d,.]+(?:\.\d+)?k?)\s+(?:home|house)\b/i,
-    /\b\$?([\d,.]+(?:\.\d+)?k?)\s+(?:home|house)\b/i
-  ]) ?? extractLabeledNumber(message, ["home price", "house price", "price", "home", "house"]);
-  const homePrice = currentHomePrice
-    ?? extractHistoryNumber(messages, ["home price", "house price", "price", "home", "house"]);
+  const currentHomePrice = extractHomePriceFromMessage(message);
+  const homePrice = currentHomePrice ?? extractHomePriceFromHistory(messages);
   const currentLoanAmount = extractLabeledNumber(message, ["loan amount"]);
   const historyLoanAmount = extractHistoryNumber(messages, ["loan amount"]);
   const currentDownpaymentPercent = extractNaturalNumber(message, [
