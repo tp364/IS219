@@ -44,6 +44,23 @@ function formatIncomeLines(annualIncome?: number, monthlyIncome?: number) {
   ].filter(Boolean) as string[];
 }
 
+function formatRatioCalculation(record: ProcessedRecord) {
+  return `${record.year}: ${formatMoney(record.median_home_price)} / ${formatMoney(record.median_income)} = ${record.price_to_income.toFixed(2)}`;
+}
+
+function wantsEveryYear(text: string) {
+  const lower = text.toLowerCase();
+  return [
+    'every year',
+    'all years',
+    'by year',
+    'across years',
+    'over time',
+    'timeline',
+    'trend'
+  ].some((phrase) => lower.includes(phrase));
+}
+
 function extractYear(text: string): number | undefined {
   const match = text.match(/\b(20\d{2})\b/);
   return match ? Number(match[1]) : undefined;
@@ -275,6 +292,7 @@ function helpText() {
     '- "years"',
     '- "record Metro A 2023"',
     '- "summary year 2024 threshold 5"',
+    '- "price-to-income ratio for Metro A every year"',
     '- "monthly payment price 400000 down 20 rate 6.5 term 30"',
     '- "price to income ratio price 350000 income 70000"',
     '- "calc (350000 - 70000) / 12"'
@@ -327,6 +345,64 @@ export default function Chatbot() {
       if (lower.includes(key)) return value;
     }
     return undefined;
+  }
+
+  function buildRatioResponse(text: string): string | null {
+    const lower = text.toLowerCase();
+    const hasRatioIntent = lower.includes('ratio') || lower.includes('price to income') || lower.includes('price-to-income');
+    if (!hasRatioIntent) {
+      return null;
+    }
+
+    const region = detectRegion(text);
+    const year = extractYear(text);
+    const wantsTimeline = wantsEveryYear(text);
+
+    if (region && (wantsTimeline || !year)) {
+      const records = data
+        .filter((d) => d.region === region)
+        .sort((a, b) => a.year - b.year);
+
+      if (records.length === 0) {
+        return `No records found for ${region}.`;
+      }
+
+      return [
+        `Price-to-income ratio for ${region} by year:`,
+        ...records.map((record) => formatRatioCalculation(record))
+      ].join('\n');
+    }
+
+    if (!region && wantsTimeline) {
+      const sections = regions.map((regionName) => {
+        const records = data
+          .filter((d) => d.region === regionName)
+          .sort((a, b) => a.year - b.year);
+        return [
+          `${regionName}:`,
+          ...records.map((record) => formatRatioCalculation(record))
+        ].join('\n');
+      });
+
+      return [
+        'Price-to-income ratio by region for every year:',
+        ...sections
+      ].join('\n\n');
+    }
+
+    if (region && year) {
+      const record = data.find((d) => d.region === region && d.year === year);
+      if (!record) return `No record found for ${region} in ${year}.`;
+      return `Price-to-income ratio for ${region} ${year}: ${formatMoney(record.median_home_price)} / ${formatMoney(record.median_income)} = ${record.price_to_income.toFixed(2)}.`;
+    }
+
+    const price = extractNumber(text, /(price|home|house)\s*=?\s*\$?([\d,]+(?:\.\d+)?)/i) ?? extractMoney(text);
+    const income = extractNumber(text, /(income|salary)\s*=?\s*\$?([\d,]+(?:\.\d+)?)/i);
+    if (!price || !income) {
+      return 'Please provide a region, a year, or price and income, e.g., "price-to-income ratio for Metro A every year" or "ratio price 350000 income 70000".';
+    }
+
+    return `Price-to-income ratio: ${formatMoney(price)} / ${formatMoney(income)} = ${(price / income).toFixed(2)}.`;
   }
 
   function handleMessage(text: string) {
@@ -383,20 +459,9 @@ export default function Chatbot() {
       ].join('\n');
     }
 
-    if (lower.includes('ratio') || lower.includes('price to income') || lower.includes('price-to-income')) {
-      const region = detectRegion(text);
-      const year = extractYear(text);
-      if (region && year) {
-        const record = data.find((d) => d.region === region && d.year === year);
-        if (!record) return `No record found for ${region} in ${year}.`;
-        return `Price-to-income ratio for ${region} ${year}: ${record.price_to_income.toFixed(2)}.`;
-      }
-      const price = extractNumber(text, /(price|home|house)\s*=?\s*\$?([\d,]+(?:\.\d+)?)/i) ?? extractMoney(text);
-      const income = extractNumber(text, /(income|salary)\s*=?\s*\$?([\d,]+(?:\.\d+)?)/i);
-      if (!price || !income) {
-        return 'Please provide price and income, e.g., "ratio price 350000 income 70000".';
-      }
-      return `Price-to-income ratio: ${(price / income).toFixed(2)}.`;
+    const ratioReply = buildRatioResponse(text);
+    if (ratioReply) {
+      return ratioReply;
     }
 
     if (lower.includes('payment') || lower.includes('mortgage')) {
@@ -475,6 +540,10 @@ export default function Chatbot() {
 
   function handleLocalFirst(text: string): string | null {
     const lower = text.toLowerCase();
+    const ratioReply = buildRatioResponse(text);
+    if (ratioReply) {
+      return ratioReply;
+    }
     const scenarioInput = buildScenarioInput(text, messages);
     const hasScenarioSignals = [
       'income',
