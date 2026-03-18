@@ -1,32 +1,24 @@
 import React, { useState } from 'react';
-
-function monthlyPayment(principal: number, annualRatePercent: number, years = 30) {
-  const rate = annualRatePercent / 100 / 12;
-  const n = years * 12;
-  if (rate === 0) return principal / n;
-  return (principal * rate) / (1 - Math.pow(1 + rate, -n));
-}
+import { calculateScenario } from '../lib/calculatorMath';
 
 export default function Calculator() {
-  const [income, setIncome] = useState(60000);
+  const [annualIncome, setAnnualIncome] = useState(60000);
+  const [incomeMode, setIncomeMode] = useState<'annual' | 'monthly'>('annual');
   const [downPct, setDownPct] = useState(20);
   const [mortgageRate, setMortgageRate] = useState(6);
   const price = 400000; // placeholder median price
 
-  const downPayment = price * (downPct / 100);
-  const loan = price - downPayment;
-  const payment = monthlyPayment(loan, mortgageRate);
-  const monthlyIncome = income / 12;
-  // affordability categories: 'definitely' if income >= 2*payment,
-  // 'maybe' if income >= payment, otherwise 'unlikely'.
-  let affordability: 'definitely' | 'maybe' | 'unlikely';
-  if (monthlyIncome >= payment * 2) {
-    affordability = 'definitely';
-  } else if (monthlyIncome >= payment) {
-    affordability = 'maybe';
-  } else {
-    affordability = 'unlikely';
-  }
+  const displayedIncome = incomeMode === 'annual' ? annualIncome : annualIncome / 12;
+  const minIncome = incomeMode === 'annual' ? 20000 : Math.round(20000 / 12);
+  const maxIncome = incomeMode === 'annual' ? 120000 : Math.round(120000 / 12);
+  const stepIncome = incomeMode === 'annual' ? 1000 : 100;
+
+  const scenario = calculateScenario({
+    annualIncome,
+    homePrice: price,
+    downpaymentPercent: downPct,
+    mortgageRatePercent: mortgageRate
+  });
 
   return (
     <div className="chart-container">
@@ -34,22 +26,40 @@ export default function Calculator() {
       <p>
         Experiment with your own assumptions: adjust income, the size of a down
         payment, and current mortgage rates to see how the required monthly payment
-        changes.  This tool helps personalize the city-level chart above.
+        changes. This tool helps personalize the city-level chart above.
       </p>
       <div className="controls">
         <label>
-          Annual income: ${income.toLocaleString()}
+          Income mode:
           <br />
-          (monthly ≈ ${(income/12).toLocaleString(undefined,{maximumFractionDigits:1})})
+          <select
+            aria-label="Income mode"
+            value={incomeMode}
+            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setIncomeMode(e.target.value as 'annual' | 'monthly')}
+          >
+            <option value="annual">Annual</option>
+            <option value="monthly">Monthly</option>
+          </select>
+        </label>
+        <br />
+        <label>
+          {incomeMode === 'annual' ? 'Annual income' : 'Monthly income'}: ${displayedIncome.toLocaleString(undefined, {
+            maximumFractionDigits: incomeMode === 'annual' ? 0 : 1
+          })}
+          <br />
+          (annual ${annualIncome.toLocaleString()} | monthly approx ${(annualIncome / 12).toLocaleString(undefined, { maximumFractionDigits: 1 })})
           <br />
           <input
             type="range"
-            aria-label="Annual income"
-            min={20000}
-            max={120000}
-            step={1000}
-            value={income}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setIncome(+e.target.value)}
+            aria-label={incomeMode === 'annual' ? 'Annual income' : 'Monthly income'}
+            min={minIncome}
+            max={maxIncome}
+            step={stepIncome}
+            value={displayedIncome}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+              const value = +e.target.value;
+              setAnnualIncome(incomeMode === 'annual' ? value : value * 12);
+            }}
           />
         </label>
         <br />
@@ -83,14 +93,16 @@ export default function Calculator() {
       </div>
       <p>Using a ${price.toLocaleString()} home (median example above),</p>
       <ul>
-        <li>Monthly income: ${monthlyIncome.toLocaleString(undefined, {maximumFractionDigits:0})}</li>
-        <li>Down payment: ${downPayment.toLocaleString()}</li>
-        <li>Loan amount: ${loan.toLocaleString()}</li>
-        <li>Estimated monthly payment: ${payment.toFixed(2)}</li>
+        <li>Annual income: ${annualIncome.toLocaleString()}</li>
+        <li>Monthly income: ${scenario.monthlyIncome?.toLocaleString(undefined, { maximumFractionDigits: 0 })}</li>
+        <li>Down payment: ${scenario.downPayment.toLocaleString()}</li>
+        <li>Loan amount: ${scenario.loanAmount.toLocaleString()}</li>
+        <li>Estimated monthly payment: ${scenario.payment.toFixed(2)}</li>
+        <li>Estimated yearly payment: ${(scenario.payment * 12).toFixed(2)}</li>
         <li>
-          Affordability: 
-          <strong style={{color: affordability === 'definitely' ? 'green' : affordability === 'maybe' ? 'orange' : 'red'}}>
-            {affordability}
+          Affordability:
+          <strong style={{ color: scenario.affordability === 'definitely' ? 'green' : scenario.affordability === 'maybe' ? 'orange' : 'red' }}>
+            {scenario.affordability}
           </strong>
         </li>
       </ul>

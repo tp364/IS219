@@ -13,7 +13,7 @@ npm install --legacy-peer-deps
 
 # add TypeScript declaration packages for React and D3
 npm install -D @types/react @types/react-dom @types/d3
-npm run dev    # then visit http://localhost:3000 (or whatever port Vite chooses)
+npm run dev    # then visit http://localhost:5173
 
 # for a lightweight production server after `npm run build`:
 # 1. install express (it's listed in dependencies)
@@ -22,6 +22,65 @@ npm run dev    # then visit http://localhost:3000 (or whatever port Vite chooses
 ```
 
 The repo uses Vite + React + TypeScript; the code lives in `src/` and data in `data/raw.csv`.
+
+## MCP Tool
+
+This project includes an MCP server that exposes the affordability dataset and core calculations as tools.
+
+### Run the MCP server
+
+```bash
+npm install
+npm run mcp
+```
+
+### Tools exposed
+
+- `list_regions` -> returns available regions and years in `data/processed.json`
+- `get_affordability_record` -> fetch a single region/year record
+- `affordability_summary` -> affordability snapshot for a given year (price-to-income <= 5 by default)
+- `calculate_monthly_payment` -> mortgage payment calculator
+- `price_to_income` -> compute a price-to-income ratio
+
+The MCP server reads `data/processed.json` and runs over stdio using the MCP SDK.
+
+## Chatbot
+
+The app now includes a built-in chatbot tab that can answer questions using the same affordability dataset and calculations.
+
+Examples:
+- "list regions"
+- "record Metro A 2023"
+- "summary year 2024 threshold 5"
+- "monthly payment price 400000 down 20 rate 6.5 term 30"
+- "price to income ratio price 350000 income 70000"
+- "calc (350000 - 70000) / 12"
+
+### LLM Setup (recommended)
+
+The chatbot can answer general questions via the OpenAI API. Set the `OPENAI_API_KEY` env var before running (the server loads `.env` automatically):
+
+```bash
+# macOS/Linux
+export OPENAI_API_KEY="your-key-here"
+
+# Windows PowerShell
+$env:OPENAI_API_KEY="your-key-here"
+```
+
+You can also copy `.env.example` to `.env` and fill in the values.
+
+Optional: override the model used by the server (default is `gpt-5-mini`):
+
+```bash
+# macOS/Linux
+export OPENAI_MODEL="gpt-5-mini"
+
+# Windows PowerShell
+$env:OPENAI_MODEL="gpt-5-mini"
+```
+
+`npm run dev` starts both the Vite app and the API server on port 3000. The chat UI calls `/api/chat`.
 
 
 ## Essential Question
