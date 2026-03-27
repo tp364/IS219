@@ -1,0 +1,44 @@
+name: Docker CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: "Docker Project"
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run unit tests
+        run: python -m unittest discover -s tests -p "test_*.py"
+
+      - name: Build Docker image
+        run: docker build -t qr-code-generator-app -f Dockerfile .
+
+      - name: Run container smoke test
+        run: |
+          docker run --name qr-ci-test qr-code-generator-app --url https://www.njit.edu
+          docker logs qr-ci-test
+
+      - name: Clean up test container
+        if: always()
+        run: docker rm -f qr-ci-test || true
