@@ -35,40 +35,52 @@ docker run hello-world
 
 ## 2. Run the App with Docker
 
+Run these commands from this folder:
+
+```bash
+cd "/home/tirth-patel/Documents/IS219/Docker Project"
+```
+
 Build image:
 
 ```bash
 docker build -t qr-code-generator-app .
 ```
 
-Run with default URL:
+Remove old container (if it exists):
 
 ```bash
-docker run --name qr-generator qr-code-generator-app
+docker rm -f qr-generator 2>/dev/null || true
 ```
 
-Run with custom URL and mounted output folders:
+Run with mounted output folders:
 
 ```bash
-docker run --name qr-generator -v ${PWD}/qr_codes:/app/qr_codes -v ${PWD}/logs:/app/logs qr-code-generator-app --url https://www.njit.edu
+mkdir -p "$PWD/qr_codes" "$PWD/logs"
+docker run --name qr-generator \
+  -v "$PWD/qr_codes:/app/qr_codes" \
+  -v "$PWD/logs:/app/logs" \
+  qr-code-generator-app \
+  --url "https://www.njit.edu"
 ```
 
-Check logs:
+Show container logs:
 
 ```bash
 docker logs qr-generator
 ```
 
-Expected log/console output includes:
-
-```text
-Generated QR code at qr_codes/<file>.png
-```
-
-Remove test container:
+Show generated files:
 
 ```bash
-docker rm qr-generator
+ls -la "$PWD/qr_codes" "$PWD/logs"
+```
+
+Stop and remove container:
+
+```bash
+docker stop qr-generator
+docker rm -f qr-generator
 ```
 
 ## 3. Docker Compose (Optional)
@@ -87,20 +99,30 @@ Login:
 docker login
 ```
 
-Tag and push:
+Tag and push to DockerHub:
 
 ```bash
-docker tag qr-code-generator-app <your-dockerhub-username>/qr-code-generator-app:latest
-docker push <your-dockerhub-username>/qr-code-generator-app:latest
+docker tag qr-code-generator-app tirthpatel117/qr-code-generator-app:latest
+docker push tirthpatel117/qr-code-generator-app:latest
 ```
 
-DockerHub link format:
+DockerHub image link:
 
 ```text
-https://hub.docker.com/r/<your-dockerhub-username>/qr-code-generator-app
+https://hub.docker.com/r/tirthpatel117/qr-code-generator-app
 ```
 
-## 5. GitHub Actions
+## 5. Push to GitHub Repo `tp364/IS219`
+
+```bash
+cd "/home/tirth-patel/Documents/IS219/Docker Project"
+git remote set-url origin https://github.com/tp364/IS219.git
+git add .
+git commit -m "Dockerize QR Code Generator"
+git push -u origin main
+```
+
+## 6. GitHub Actions
 
 Workflow file:
 
@@ -113,7 +135,7 @@ Workflow checks:
 - Docker image build
 - Container smoke test
 
-## 6. Submission Checklist
+## 7. Submission Checklist
 
 1. GitHub repository link (must include Dockerfile, requirements, app code, workflow)
 2. DockerHub image link
