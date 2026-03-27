@@ -1,21 +1,15 @@
-FROM node:22-alpine AS base
+FROM python:3.12-slim-bullseye
+
 WORKDIR /app
-ENV NEXT_TELEMETRY_DISABLED=1
 
-FROM base AS deps
-COPY package.json package-lock.json ./
-RUN npm ci
+COPY requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
 
-FROM base AS builder
-COPY --from=deps /app/node_modules ./node_modules
-COPY . .
-RUN npm run build
+RUN useradd -m myuser && mkdir -p logs qr_codes && chown myuser:myuser logs qr_codes
 
-FROM base AS runner
-ENV NODE_ENV=production
-COPY --from=builder /app/.next/standalone ./
-COPY --from=builder /app/.next/static ./.next/static
-COPY --from=builder /app/public ./public
-EXPOSE 3000
-CMD ["node", "server.js"]
+COPY --chown=myuser:myuser . .
 
+USER myuser
+
+ENTRYPOINT ["python", "main.py"]
+CMD ["--url", "http://github.com/kaw393939"]

@@ -1,37 +1,14 @@
 services:
-  app:
+  qr-generator:
     build:
       context: .
       dockerfile: Dockerfile
-    depends_on:
-      db:
-        condition: service_healthy
+    image: qr-code-generator-app
+    container_name: qr-generator
     environment:
-      NODE_ENV: production
-      PORT: 3000
-      DATABASE_URL: postgresql://postgres:postgres@db:5432/appdb
-    ports:
-      - "3000:3000"
-    restart: unless-stopped
-
-  db:
-    image: postgres:16-alpine
-    environment:
-      POSTGRES_DB: appdb
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d appdb"]
-      interval: 5s
-      timeout: 5s
-      retries: 12
-    ports:
-      - "5432:5432"
-    restart: unless-stopped
+      QR_CODES_DIR: /app/qr_codes
+      LOGS_DIR: /app/logs
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./docker/db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
-
-volumes:
-  postgres_data:
-
+      - ./qr_codes:/app/qr_codes
+      - ./logs:/app/logs
+    command: ["--url", "https://www.njit.edu"]

@@ -8,4 +8,12 @@ pnpm-debug.log*
 .env
 .env.local
 .DS_Store
-
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+logs/
+qr_codes/
+tests/qr-test-*/
