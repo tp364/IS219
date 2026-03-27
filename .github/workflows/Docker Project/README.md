@@ -189,3 +189,10 @@ To view successful run:
   authenticate git with a PAT or SSH key before pushing.
 - Actions error `failed to read dockerfile`:
   ensure workflow runs from the correct folder (`Docker Project`) or move Docker files to repo root.
+
+## Submission Links and Files:
+- GitHub Repository Link: https://github.com/tp364/IS219/tree/main/Docker%20Project
+- DockerHub Image Link: https://hub.docker.com/layers/tirthpatel117/qr-code-generator-app/latest/images/sha256-aa815339b979be73b01148d50ed49e9ba4479bedf494cb56dc0f4c150598397a
+- Container Logs: <img width="678" height="50" alt="Image" src="https://github.com/user-attachments/assets/0c6fd91f-811e-41cd-8bb1-cd0c278a2ce8" />
+- GitHub Actions Workflow: <img width="1728" height="907" alt="Image" src="https://github.com/user-attachments/assets/46291d82-c9d6-4ce2-8600-9d6ad959d0db" />
+- Reflection Document: [reflection.md](https://github.com/user-attachments/files/26317656/reflection.md)
