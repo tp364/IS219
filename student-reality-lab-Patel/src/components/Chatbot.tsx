@@ -3,12 +3,16 @@ import { evaluate } from 'mathjs';
 import { loadData } from '../lib/loadData';
 import { ProcessedRecord } from '../lib/schema';
 import { calculateScenario } from '../lib/calculatorMath';
-import CityChart from './CityChart';
-import Calculator from './Calculator';
 
 type ChatMessage = {
   role: 'user' | 'assistant';
   text: string;
+};
+
+type QuickAction = {
+  label: string;
+  description: string;
+  prompt: string;
 };
 
 type PaymentInput = {
@@ -341,6 +345,43 @@ export default function Chatbot() {
     return Array.from(new Set(data.map((d) => d.year))).sort();
   }, [data]);
 
+  const quickActions = useMemo<QuickAction[]>(() => {
+    const featuredRegion = regions[0] ?? 'Metro A';
+    const latestYear = years[years.length - 1] ?? 2024;
+    return [
+      {
+        label: 'List Regions',
+        description: 'See every region available in the dataset.',
+        prompt: 'regions'
+      },
+      {
+        label: 'Show Year Range',
+        description: 'Check what years are included in the data.',
+        prompt: 'years'
+      },
+      {
+        label: 'Latest Summary',
+        description: `Get affordability status for ${latestYear}.`,
+        prompt: `summary year ${latestYear} threshold 5`
+      },
+      {
+        label: 'Region Trend',
+        description: `View price-to-income trend for ${featuredRegion}.`,
+        prompt: `price-to-income ratio for ${featuredRegion} every year`
+      },
+      {
+        label: 'Mortgage Example',
+        description: 'Run a sample monthly payment scenario.',
+        prompt: 'monthly payment price 400000 down 20 rate 6.5 term 30'
+      },
+      {
+        label: 'How To Use',
+        description: 'Show example commands and supported questions.',
+        prompt: 'help'
+      }
+    ];
+  }, [regions, years]);
+
   function detectRegion(text: string): string | undefined {
     const lower = text.toLowerCase();
     for (const [key, value] of regionMap.entries()) {
@@ -648,12 +689,14 @@ export default function Chatbot() {
     return null;
   }
 
-  async function sendMessage() {
-    const trimmed = input.trim();
+  async function sendMessageFromText(text: string, clearInput = false) {
+    const trimmed = text.trim();
     if (!trimmed) return;
     const userMsg: ChatMessage = { role: 'user', text: trimmed };
     setMessages((prev) => [...prev, userMsg]);
-    setInput('');
+    if (clearInput) {
+      setInput('');
+    }
     setIsLoading(true);
 
     try {
@@ -693,9 +736,39 @@ export default function Chatbot() {
     }
   }
 
+  function sendMessage() {
+    void sendMessageFromText(input, true);
+  }
+
   return (
     <div className="chat-container">
       <h2>Affordability Chatbot</h2>
+      <p className="chat-help">
+        How to use: Ask a housing affordability question in plain English, include details like region, year, income, home price, down payment, and interest rate when possible, then press Enter or click Send.
+        Try: "Metro A 2024 affordability summary", "monthly payment for 400000 home at 6.5% with 20% down", or "price to income ratio price 350000 income 70000".
+      </p>
+      <section className="quick-actions" aria-label="Quick actions">
+        <h3>Quick Actions</h3>
+        <p>
+          Tap any button to instantly run a useful prompt and discover key information faster.
+        </p>
+        <div className="quick-action-grid">
+          {quickActions.map((action) => (
+            <button
+              key={action.label}
+              type="button"
+              className="quick-action-button"
+              onClick={() => {
+                void sendMessageFromText(action.prompt);
+              }}
+              disabled={isLoading}
+            >
+              <span className="quick-action-title">{action.label}</span>
+              <span className="quick-action-description">{action.description}</span>
+            </button>
+          ))}
+        </div>
+      </section>
       <div className="chat-log" aria-live="polite">
         {messages.map((msg, idx) => (
           <div key={`${msg.role}-${idx}`} className={`chat-message ${msg.role}`}>
@@ -718,12 +791,6 @@ export default function Chatbot() {
         <button onClick={sendMessage} disabled={isLoading}>
           {isLoading ? 'Thinking...' : 'Send'}
         </button>
-      </div>
-      <div className="chat-tools">
-        <h3>Affordability Chart</h3>
-        <CityChart />
-        <h3>Calculator</h3>
-        <Calculator />
       </div>
     </div>
   );
