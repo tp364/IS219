@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="How spec-driven development shaped the graduate housing scrollytelling redesign."
+    />
+    <title>How Spec-Driven Development Helped</title>
+    <link rel="stylesheet" href="./content-page.css" />
+    <script src="./content-page.js" defer></script>
+  </head>
+  <body>
+    <div class="page-shell">
+      <div class="topbar">
+        <span class="brand-mark">Graduate Housing Story</span>
+        <a class="return-link" data-return-link href="/IS219/#story">Return to the story</a>
+      </div>
+
+      <header class="page-hero">
+        <div>
+          <p class="eyebrow">Process page</p>
+          <h1>How spec-driven development helped</h1>
+          <p class="page-hero__summary">
+            The redesign was not just a style change. It followed the teacher's core lesson: AI gets better when direction
+            lives in files, phases, and exit checks instead of floating inside chat history.
+          </p>
+        </div>
+        <div class="page-hero__media">
+          <img src="./media/systems-board.png" alt="Systems-oriented reference image used on the process page." />
+        </div>
+      </header>
+
+      <section class="section">
+        <h2>The control loop we applied</h2>
+        <div class="fact-grid">
+          <article class="fact-card">
+            <h3>Harvest</h3>
+            <p>Review the teacher examples and the existing project to extract the good ideas worth reusing.</p>
+          </article>
+          <article class="fact-card">
+            <h3>Specify</h3>
+            <p>Write stable specs for the homepage story, supporting pages, and visual system before coding.</p>
+          </article>
+          <article class="fact-card">
+            <h3>Phase</h3>
+            <p>Break the build into bounded chunks so implementation can be checked instead of guessed at.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="detail-band">
+          <div class="prose">
+            <h2>What changed in practice</h2>
+            <p>
+              The old version made the tool available quickly, but it did not have a strong narrative frame. The spec-driven
+              docs made it easier to decide what the homepage should teach, what the content pages should carry, and how the
+              live tool should remain visible after the redesign.
+            </p>
+            <p>
+              Just as importantly, the docs now preserve the reasoning. A future session can reopen the repo and see the
+              references, the specs, the phases, and the checks without reconstructing the whole plan from memory.
+            </p>
+          </div>
+          <aside class="note-panel">
+            This is the hidden value of the assignment: the process is reusable long after the specific page design is gone.
+          </aside>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="quote-block">
+          <blockquote>
+            The site improved because the project gained a stable meaning before it gained more code.
+          </blockquote>
+          <p>
+            That is the piece worth carrying into larger work. The better the context pack, the steadier the AI pairing becomes.
+          </p>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>Continue the walkthrough</h2>
+        <div class="link-grid">
+          <article>
+            <p class="eyebrow">Context page</p>
+            <h3>Why this project matters</h3>
+            <p>Revisit the narrative rationale for opening with housing pressure instead of a bare interface.</p>
+            <a class="page-link" href="./why-this-project.html">Open the context page</a>
+          </article>
+          <article>
+            <p class="eyebrow">Method page</p>
+            <h3>How the data and tool work</h3>
+            <p>Move from process into implementation details and the interaction model of the live tool section.</p>
+            <a class="page-link" href="./how-it-works.html">Open the method page</a>
+          </article>
+          <article>
+            <p class="eyebrow">Story return</p>
+            <h3>Back to the scrollytelling homepage</h3>
+            <p>Return to the main story and use the chart, calculator, and chatbot with the new framing in mind.</p>
+            <a class="page-link" data-return-link href="/IS219/#story">Return to the story</a>
+          </article>
+        </div>
+      </section>
+    </div>
+  </body>
+</html>

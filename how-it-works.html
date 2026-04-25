@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="How the graduate housing story uses data, a calculator, and a local-first chatbot."
+    />
+    <title>How The Data And Tool Work</title>
+    <link rel="stylesheet" href="./content-page.css" />
+    <script src="./content-page.js" defer></script>
+  </head>
+  <body>
+    <div class="page-shell">
+      <div class="topbar">
+        <span class="brand-mark">Graduate Housing Story</span>
+        <a class="return-link" data-return-link href="/IS219/#story">Return to the story</a>
+      </div>
+
+      <header class="page-hero">
+        <div>
+          <p class="eyebrow">Method page</p>
+          <h1>How the data and tool work</h1>
+          <p class="page-hero__summary">
+            This page slows down the mechanics behind the homepage. The project combines regional home prices, income,
+            and mortgage assumptions so visitors can compare housing pressure instead of guessing.
+          </p>
+        </div>
+        <div class="page-hero__media">
+          <img src="./media/museum-board.png" alt="Editorial reference image used on the method page." />
+        </div>
+      </header>
+
+      <section class="section">
+        <h2>The data model is small on purpose</h2>
+        <div class="fact-grid">
+          <article class="fact-card">
+            <h3>Home price</h3>
+            <p>The median home price sets the scale of the challenge in each region.</p>
+          </article>
+          <article class="fact-card">
+            <h3>Median income</h3>
+            <p>Income provides the baseline for comparing whether a market is even in range.</p>
+          </article>
+          <article class="fact-card">
+            <h3>Mortgage rate</h3>
+            <p>Rates shape the actual monthly cost, which is why the calculator and chatbot both expose them.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="detail-band">
+          <div class="prose">
+            <h2>Three interfaces, three jobs</h2>
+            <p>
+              The chart gives a regional comparison. The calculator lets someone test their own assumptions. The chatbot lets
+              the visitor ask the dataset questions in plain English. Together they cover scanning, experimenting, and asking.
+            </p>
+            <p>
+              That mix matters on GitHub Pages because the chatbot can still answer a strong set of local-first questions even
+              when there is no live server behind the deployed site.
+            </p>
+          </div>
+          <aside class="note-panel">
+            The scrollytelling homepage now hands the visitor directly into this tool section instead of isolating it behind a login wall.
+          </aside>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="quote-block">
+          <blockquote>
+            The goal is not to predict one future buyer. It is to make regional affordability easier to inspect, compare, and explain.
+          </blockquote>
+          <p>
+            That is why the redesign keeps the interaction layer visible. The story earns trust; the tool lets the visitor test that trust.
+          </p>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>Related pages</h2>
+        <div class="link-grid">
+          <article>
+            <p class="eyebrow">Context page</p>
+            <h3>Why the project matters</h3>
+            <p>Read the human and narrative rationale behind the question before returning to the tool.</p>
+            <a class="page-link" href="./why-this-project.html">Open the context page</a>
+          </article>
+          <article>
+            <p class="eyebrow">Process page</p>
+            <h3>How the build process changed</h3>
+            <p>See how the teacher's scrollytelling workflow influenced the redesign and documentation structure.</p>
+            <a class="page-link" href="./spec-driven-process.html">Open the process page</a>
+          </article>
+          <article>
+            <p class="eyebrow">Story return</p>
+            <h3>Back to the scrollytelling homepage</h3>
+            <p>Return to the main sequence and continue into the final scenes of the story.</p>
+            <a class="page-link" data-return-link href="/IS219/#story">Return to the story</a>
+          </article>
+        </div>
+      </section>
+    </div>
+  </body>
+</html>
